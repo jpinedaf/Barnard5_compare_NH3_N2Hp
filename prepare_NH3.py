@@ -3,21 +3,23 @@ from spectral_cube import SpectralCube
 from astropy import units as u
 import numpy as np
 
-file_in_11 = '../B5_evla_highres/B5_11_VLA_GBT_model_11_22.fits'
+original_data = '../B5_line_fit/'
+file_in_11 = original_data+'B5_11_VLA_GBT_model_11_22.fits'
 file_out_11 = 'data/B5_NH3_11_8arcsec.fits'
 
-file_in_22 = '../B5_evla_highres/B5_22_VLA_GBT_model_11_22.fits'
+file_in_22 = original_data+'B5_22_VLA_GBT_model_11_22.fits'
 file_out_22 = 'data/B5_NH3_22_8arcsec.fits'
 
-do_nh3_11 = False
+do_nh3_11 = True
 do_nh3_22 = False
 
-do_nh3_22_maps = True
+do_nh3_22_maps = False
 
 if do_nh3_11:
     cube = SpectralCube.read(file_in_11)
     cube.allow_huge_operations=True
-    kcube = cube.to(u.K)
+    # remove a few channels at the edge of the cube
+    kcube = (cube[12:-1,:,:]).to(u.K)
     beam = radio_beam.Beam(major=8*u.arcsec, minor=8*u.arcsec, pa=0*u.deg)
     new_cube = kcube.convolve_to(beam)
     new_cube.write(file_out_11)
