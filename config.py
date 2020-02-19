@@ -1,0 +1,15 @@
+file_in_N2Hp = 'data/B5_N2H+_1-0_ARGUS_Tmb_8arcsec.fits'
+file_N2Hp_base = 'data/B5_N2H+_1-0_ARGUS_Tmb_8arcsec_rebase1.fits'
+file_N2Hp_base_erode = 'data/B5_N2H+_1-0_ARGUS_Tmb_8arcsec_rebase1_erode.fits'
+file_N2Hp_base_erode_TdV = 'data/B5_N2H+_1-0_ARGUS_Tmb_8arcsec_rebase1_erode_TdV.fits'
+file_N2Hp_base_erode_rms = 'data/B5_N2H+_1-0_ARGUS_Tmb_8arcsec_rebase1_erode_rms.fits'
+
+file_NH3_11 = 'data/B5_NH3_11_8arcsec.fits'
+file_NH3_22 = 'data/B5_NH3_22_8arcsec.fits'
+
+file_NH3_11_match = 'data/B5_NH3_11_8arcsec_match.fits'
+file_NH3_22_match = 'data/B5_NH3_22_8arcsec_match.fits'
+file_NH3_11_match_TdV = 'data/B5_NH3_11_8arcsec_match_TdV.fits'
+file_NH3_11_match_rms = 'data/B5_NH3_11_8arcsec_match_rms.fits'
+file_NH3_22_match_TdV = 'data/B5_NH3_22_8arcsec_match_TdV.fits'
+file_NH3_22_match_rms = 'data/B5_NH3_22_8arcsec_match_rms.fits'

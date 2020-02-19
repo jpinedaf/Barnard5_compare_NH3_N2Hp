@@ -10,7 +10,7 @@ file_out_11 = 'data/B5_NH3_11_8arcsec.fits'
 file_in_22 = original_data+'B5_22_VLA_GBT_model_11_22.fits'
 file_out_22 = 'data/B5_NH3_22_8arcsec.fits'
 
-do_nh3_11 = True
+do_nh3_11 = False
 do_nh3_22 = False
 
 do_nh3_22_maps = False
