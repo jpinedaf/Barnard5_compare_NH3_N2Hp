@@ -4,6 +4,12 @@ file_N2Hp_base_erode = 'data/B5_N2H+_1-0_ARGUS_Tmb_8arcsec_rebase1_erode.fits'
 file_N2Hp_base_erode_TdV = 'data/B5_N2H+_1-0_ARGUS_Tmb_8arcsec_rebase1_erode_TdV.fits'
 file_N2Hp_base_erode_rms = 'data/B5_N2H+_1-0_ARGUS_Tmb_8arcsec_rebase1_erode_rms.fits'
 
+thinFile_N2Hp = 'fit_files/B5_N2Hp_thin_fittedParameters_snr3.fits'
+thickFile_N2Hp = 'fit_files/B5_N2Hp_thick_fittedParameters_snr3.fits'
+tpeakFile_N2Hp = 'data/B5_N2Hp_Tpeak.fits'
+maskFile_N2Hp = 'fit_files/B5_N2Hp_mask.fits'
+
+
 file_NH3_11 = 'data/B5_NH3_11_8arcsec.fits'
 file_NH3_22 = 'data/B5_NH3_22_8arcsec.fits'
 
