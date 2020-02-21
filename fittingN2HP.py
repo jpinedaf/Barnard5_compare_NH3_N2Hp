@@ -3,8 +3,6 @@
 import pyspeckit
 import astropy.units as u
 import astropy.io.fits as fits
-import astropy.wcs as wcs
-import astropy.utils.data as aud
 import warnings
 import numpy as np
 import skimage.morphology as immorph
@@ -25,8 +23,8 @@ ncpu = 4
 vmin = 8.8          # mininum velocity of the main hyperfine components
 vmax = 12.5         # maximum velocity of the main hyperfine components
 
-xmax = 18.
-ymax = 33.
+xmax = 65.
+ymax = 90.
 
 vmin_plot=10.0
 vmax_plot=10.5
@@ -38,13 +36,13 @@ vmean = 10.2
 
 prepareFiles = False
 
-optThin = False
+optThin = True
 optThick = True
 
 showOptThin = True
 showOptThick = True
 
-plot_dv = True
+plot_dv = False
 
 fitSingleSpectrum = False
 
@@ -69,8 +67,7 @@ if prepareFiles:
 
     peakSNR = tpeakMap / rmsMap
     planemask = (peakSNR > snr_min)
-    planemask = immorph.remove_small_objects(planemask, min_size=40)
-    planemask = immorph.opening(planemask, immorph.disk(1))
+    planemask = immorph.opening(planemask, immorph.disk(5))
 
     hd_cube = cube.header.copy()
     removeKeys = ['NAXIS3', 'CRPIX3', 'CDELT3', 'CUNIT3', 'CTYPE3', 'CRVAL3', 'SPECSYS']

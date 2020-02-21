@@ -6,7 +6,7 @@ from spectral_cube import SpectralCube
 #import signal_id
 from radio_beam import Beam
 import astropy.units as u
-from skimage.morphology import remove_small_objects,closing,disk,opening
+from skimage.morphology import remove_small_objects, closing, disk, opening
 
 from pyspeckit.spectrum.models import ammonia
 from config import file_NH3_11_match, file_NH3_11_match_rms, file_NH3_11_match_TdV,\
@@ -36,8 +36,8 @@ if Prepare_files:
     peaksnr = Tpeak.value/errmap11
 
     planemask = (peaksnr>snr_min) # *(errmap11 < 0.15)
-    planemask = remove_small_objects(planemask,min_size=15)
-    planemask = opening(planemask,disk(5))
+    planemask = remove_small_objects(planemask, min_size=15)
+    planemask = opening(planemask, disk(5))
 
     moment1 = slab.moment1( axis=0)
 
