@@ -3,7 +3,10 @@ import numpy as np
 
 from config import thinFile_N2Hp, thickFile_N2Hp, mergedFile_N2Hp,\
     mergedFile_N2Hp_Vlsr, mergedFile_N2Hp_sigma,\
+    mergedFile_N2Hp_eVlsr, mergedFile_N2Hp_esigma,\
     mergedFile_NH3_Vlsr, mergedFile_NH3_sigma,\
+    mergedFile_NH3_eVlsr, mergedFile_NH3_esigma,\
+    mergedFile_NH3_Tk, mergedFile_NH3_eTk,\
     thickFile_NH3
 
 do_N2Hp = True
@@ -42,6 +45,8 @@ if do_N2Hp:
     fits.writeto(mergedFile_N2Hp, merged, hd, overwrite=True)
     fits.writeto(mergedFile_N2Hp_Vlsr, merged[2, :, :], hd_new, overwrite=True)
     fits.writeto(mergedFile_N2Hp_sigma, merged[3, :, :], hd_new, overwrite=True)
+    fits.writeto(mergedFile_N2Hp_eVlsr, merged[6, :, :], hd_new, overwrite=True)
+    fits.writeto(mergedFile_N2Hp_esigma, merged[7, :, :], hd_new, overwrite=True)
 
 
 if do_NH3:
@@ -80,4 +85,10 @@ if do_NH3:
     hd_new['WCSAXES'] = 2
     # fits.writeto(mergedFile_NHp, merged, hd, overwrite=True)
     fits.writeto(mergedFile_NH3_Vlsr, merged[4, :, :], hd_new, overwrite=True)
+    fits.writeto(mergedFile_NH3_eVlsr, merged[10, :, :], hd_new, overwrite=True)
     fits.writeto(mergedFile_NH3_sigma, merged[3, :, :], hd_new, overwrite=True)
+    fits.writeto(mergedFile_NH3_esigma, merged[9, :, :], hd_new, overwrite=True)
+    #
+    hd_new['BUNIT'] = 'K'
+    fits.writeto(mergedFile_NH3_Tk, merged[0, :, :], hd_new, overwrite=True)
+    fits.writeto(mergedFile_NH3_eTk, merged[6, :, :], hd_new, overwrite=True)
