@@ -12,6 +12,9 @@ from config import thinFile_N2Hp, thickFile_N2Hp, mergedFile_N2Hp,\
 do_N2Hp = True
 do_NH3 = True
 
+dv_N2Hp = 0.1 / 2.355 # km/s
+dv_NH3 = 0.049 / 2.355  # km/s
+
 if do_N2Hp:
     # PLANE0  = 'TEX     '                                                            
     # PLANE1  = 'TAU     '                                                            
@@ -42,11 +45,12 @@ if do_N2Hp:
     hd_new['BUNIT'] = 'km s-1'
     hd_new['NAXIS'] = 2
     hd_new['WCSAXES'] = 2
+    # velocity dispersion corrected by channel width
     fits.writeto(mergedFile_N2Hp, merged, hd, overwrite=True)
     fits.writeto(mergedFile_N2Hp_Vlsr, merged[2, :, :], hd_new, overwrite=True)
-    fits.writeto(mergedFile_N2Hp_sigma, merged[3, :, :], hd_new, overwrite=True)
+    fits.writeto(mergedFile_N2Hp_sigma, np.sqrt(merged[3, :, :]**2 - dv_N2Hp**2), hd_new, overwrite=True)
     fits.writeto(mergedFile_N2Hp_eVlsr, merged[6, :, :], hd_new, overwrite=True)
-    fits.writeto(mergedFile_N2Hp_esigma, merged[7, :, :], hd_new, overwrite=True)
+    fits.writeto(mergedFile_N2Hp_esigma, merged[7, :, :] * merged[3, :, :] / np.sqrt(merged[3, :, :]**2 - dv_N2Hp**2), hd_new, overwrite=True)
 
 
 if do_NH3:
@@ -86,8 +90,9 @@ if do_NH3:
     # fits.writeto(mergedFile_NHp, merged, hd, overwrite=True)
     fits.writeto(mergedFile_NH3_Vlsr, merged[4, :, :], hd_new, overwrite=True)
     fits.writeto(mergedFile_NH3_eVlsr, merged[10, :, :], hd_new, overwrite=True)
-    fits.writeto(mergedFile_NH3_sigma, merged[3, :, :], hd_new, overwrite=True)
-    fits.writeto(mergedFile_NH3_esigma, merged[9, :, :], hd_new, overwrite=True)
+    fits.writeto(mergedFile_NH3_sigma, np.sqrt(merged[3, :, :]**2 - dv_NH3**2), hd_new, overwrite=True)
+    # fits.writeto(mergedFile_NH3_sigma, merged[3, :, :], hd_new, overwrite=True)
+    fits.writeto(mergedFile_NH3_esigma, merged[9, :, :] * merged[3, :, :] / np.sqrt(merged[3, :, :]**2 - dv_NH3**2), hd_new, overwrite=True)
     #
     hd_new['BUNIT'] = 'K'
     fits.writeto(mergedFile_NH3_Tk, merged[0, :, :], hd_new, overwrite=True)
