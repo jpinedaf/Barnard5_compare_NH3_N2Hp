@@ -12,3 +12,8 @@ __pycache__
 # Ignore log and last files from CASA
 *.last
 *.log
+
+# PyCharm
+.idea
+venv
+*.iml
