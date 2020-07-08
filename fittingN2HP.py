@@ -34,7 +34,7 @@ vmean = 10.2
 #
 # set some flags
 
-prepareFiles = False
+prepareFiles = True
 
 optThin = True
 optThick = True
@@ -56,7 +56,7 @@ cube = pyspeckit.Cube(file_N2Hp_base_erode)
 # these values need to be set
 
 cube.xarr.refX = freqLine
-cube.xarr.velocity_convention='radio'
+cube.xarr.velocity_convention = 'radio'
 cube.xarr.convert_to_unit('km/s')
 
 

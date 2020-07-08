@@ -38,11 +38,11 @@ if do_trim_N2Hp:
     # after an erosion of the mask
     # save the minimal subcube
     rms = masked_cube.std(axis=0)
-    rms_mask = ( rms < 0.5 )
-    rms_mask &= erosion( rms_mask, disk(5) )
-    data = cube.unmasked_data[:,:,:] * rms_mask
-    data[ data[:,:,:] == 0.0 ] = np.nan
-    subcube = SC( data=data, wcs=cube.wcs, header=cube.header)[:,23:226,11:166] * u.K
+    rms_mask = (rms < 0.5)
+    rms_mask &= erosion(rms_mask, disk(5))
+    data = cube.unmasked_data[:, :, :] * rms_mask
+    data[data[:, :, :] == 0.0] = np.nan
+    subcube = SC(data=data, wcs=cube.wcs, header=cube.header)[:, 23:226, 11:166] * u.K
     #
     signal_cube = subcube.with_mask(good_channels[:, np.newaxis, np.newaxis])
     rms_cube = subcube.with_mask(bad_channels[:, np.newaxis, np.newaxis])
@@ -97,7 +97,8 @@ if do_TdV_11:
     cube_f = SC.read(file_NH3_11_match)
     # cube = cube_f.with_spectral_unit(u.km/u.s, velocity_convention='radio')
     if cube_f.shape[0] > 1018:
-        cube = (cube_f[12:-1,:,:]).with_spectral_unit(u.km/u.s, velocity_convention='radio')
+        cube = (cube_f[12:-1, :, :]).with_spectral_unit(u.km/u.s,
+                                                        velocity_convention='radio')
     else:
         cube = cube_f.with_spectral_unit(u.km/u.s, velocity_convention='radio')
     #
