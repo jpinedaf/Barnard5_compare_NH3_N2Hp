@@ -47,9 +47,9 @@ do_Tdv = False
 do_Vlsr = False
 do_Vlsr_diff = False
 do_sigma_v = False
-do_compare_V = False
+do_compare_V = True
 do_compare_dv = False
-do_ratio_dv = True
+do_ratio_dv = False
 do_compare_dv_nt = False
 do_compare_Tex = False
 do_compare_TdV = False
@@ -374,9 +374,9 @@ if do_compare_V:
             horizontalalignment='center',
             transform=ax.transAxes)
     #
-    ax.text(10.35, 10.42, r'$\Delta V_{lsr}$ = $\pm$0.05 km s$^{-1}$',
+    ax.text(10.35, 10.42, r'$\Delta V_{LSR}$ = $\pm$0.05 km s$^{-1}$',
             horizontalalignment='right')
-    ax.annotate(s='', xy=(10.40, 10.35), xytext=(10.40, 10.45),
+    ax.annotate(text='', xy=(10.40, 10.35), xytext=(10.40, 10.45),
                 arrowprops=dict(arrowstyle='<->'))
     fig.savefig('figures/B5_compare_Vlsr_KDE.pdf', bbox_inches='tight')
 
@@ -430,7 +430,7 @@ if do_compare_dv:
     #
     ax.text(0.195, 0.21, r'$\Delta \sigma_v$ = 0.02 km s$^{-1}$',
             horizontalalignment='right')
-    ax.annotate(s='', xy=(0.20, 0.20), xytext=(0.20, 0.22),
+    ax.annotate(text='', xy=(0.20, 0.20), xytext=(0.20, 0.22),
                 arrowprops=dict(arrowstyle='<->'))
     fig.savefig('figures/B5_compare_sigma_v_KDE.pdf', bbox_inches='tight')
 
@@ -514,7 +514,7 @@ if do_compare_dv_nt:
     ax.plot(xrange, xrange + 0.03, color='k', zorder=11, ls=':')
     ax.text(0.175, 0.205, r'$\Delta \sigma_v$ = 0.03 km s$^{-1}$',
             horizontalalignment='right')
-    ax.annotate(s='', xy=(0.18, 0.18), xytext=(0.18, 0.21),
+    ax.annotate(text='', xy=(0.18, 0.18), xytext=(0.18, 0.21),
                 arrowprops=dict(arrowstyle='<->'))
     ax.plot(cs_tk_mean*np.array([0.5, 1]), cs_tk_mean * np.array([1, 1]),
             ls='--', color='#80b1d3')
