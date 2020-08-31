@@ -378,6 +378,8 @@ if do_compare_V:
             horizontalalignment='right')
     ax.annotate(text='', xy=(10.40, 10.35), xytext=(10.40, 10.45),
                 arrowprops=dict(arrowstyle='<->'))
+    ax.set_xticks([10.0, 10.2, 10.4])
+    ax.set_yticks([10.0, 10.2, 10.4])
     fig.savefig('figures/B5_compare_Vlsr_KDE.pdf', bbox_inches='tight')
 
 if do_compare_dv:
