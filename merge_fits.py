@@ -13,10 +13,12 @@ from config import thinFile_N2Hp, thickFile_N2Hp, mergedFile_N2Hp,\
     mergedFile_NH3_N_NH3, mergedFile_NH3_eN_NH3,\
     thickFile_NH3, thinFile_NH3, mergedFile_NH3
 
-do_N2Hp = True
+do_N2Hp = False
+do_N2Hp_full = True
 do_NH3 = False
 
 dv_N2Hp = 0.1 / 2.355  # km/s
+dv_N2Hp_full = 0.049 / 2.355  # km/s
 dv_NH3 = 0.049 / 2.355  # km/s
 
 if do_N2Hp:
@@ -61,6 +63,51 @@ if do_N2Hp:
     fits.writeto(mergedFile_N2Hp_eVlsr, merged[6, :, :], hd_new, overwrite=True)
     fits.writeto(mergedFile_N2Hp_sigma, np.sqrt(merged[3, :, :]**2 - dv_N2Hp**2), hd_new, overwrite=True)
     fits.writeto(mergedFile_N2Hp_esigma, merged[7, :, :] * merged[3, :, :] / np.sqrt(merged[3, :, :]**2 - dv_N2Hp**2), hd_new, overwrite=True)
+
+
+if do_N2Hp_full:
+    # PLANE0  = 'TEX     '
+    # PLANE1  = 'TAU     '
+    # PLANE2  = 'CENTER  '
+    # PLANE3  = 'WIDTH   '
+    # PLANE4  = 'eTEX    '
+    # PLANE5  = 'eTAU    '
+    # PLANE6  = 'eCENTER '
+    # PLANE7  = 'eWIDTH  '
+    thick, hd = fits.getdata(thickFile_N2Hp.replace('.fits', '_full.fits'), header=True)
+    thin = fits.getdata(thinFile_N2Hp.replace('.fits', '_full.fits'))
+    # mask of tau > 3*sigma_tau
+    mask = (thick[1, :, :] > 3 * thick[5, :, :]) & \
+           (thick[1, :, :] < 30.)
+    merged = mask * thick + (1 - mask) * thin
+    # QA
+    # Poorly constrained velocity dispersion, errors of 0.02 km/s
+    bad = np.broadcast_to(merged[7, :, :] > 0.02, merged.shape)
+    merged[bad] = np.nan
+    # replace 0 with NaNs
+    bad = (merged == 0.)
+    if np.sum(bad) != 0:
+        merged[bad] = np.nan
+    key_list = ['NAXIS3', 'CRPIX3', 'CDELT3', 'CUNIT3', 'CTYPE3', 'CRVAL3']
+    hd_new = hd.copy()
+    for key_i in key_list:
+        hd_new.remove(key_i)
+    hd_new['NAXIS'] = 2
+    hd_new['WCSAXES'] = 2
+    # velocity dispersion corrected by channel width
+
+    fits.writeto(mergedFile_N2Hp.replace('.fits', '_full.fits'), merged, hd, overwrite=True)
+    hd_new['BUNIT'] = 'K'
+    fits.writeto(mergedFile_N2Hp_Tex.replace('.fits', '_full.fits'), merged[0, :, :], hd_new, overwrite=True)
+    fits.writeto(mergedFile_N2Hp_eTex.replace('.fits', '_full.fits'), merged[4, :, :], hd_new, overwrite=True)
+    hd_new['BUNIT'] = ''
+    fits.writeto(mergedFile_N2Hp_tau.replace('.fits', '_full.fits'), merged[1, :, :], hd_new, overwrite=True)
+    fits.writeto(mergedFile_N2Hp_etau.replace('.fits', '_full.fits'), merged[5, :, :], hd_new, overwrite=True)
+    hd_new['BUNIT'] = 'km s-1'
+    fits.writeto(mergedFile_N2Hp_Vlsr.replace('.fits', '_full.fits'), merged[2, :, :], hd_new, overwrite=True)
+    fits.writeto(mergedFile_N2Hp_eVlsr.replace('.fits', '_full.fits'), merged[6, :, :], hd_new, overwrite=True)
+    fits.writeto(mergedFile_N2Hp_sigma.replace('.fits', '_full.fits'), np.sqrt(merged[3, :, :]**2 - dv_N2Hp_full**2), hd_new, overwrite=True)
+    fits.writeto(mergedFile_N2Hp_esigma.replace('.fits', '_full.fits'), merged[7, :, :] * merged[3, :, :] / np.sqrt(merged[3, :, :]**2 - dv_N2Hp_full**2), hd_new, overwrite=True)
 
 
 if do_NH3:

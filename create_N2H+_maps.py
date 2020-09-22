@@ -21,6 +21,13 @@ if do_baseline_N2Hp:
                windowFunction=None, blankBaseline=False,
                flagSpike=False, v0=None, trimEdge=True)
 
+do_baseline_N2Hp_full = False
+if do_baseline_N2Hp_full:
+    GAS.baseline.rebaseline(file_in_N2Hp.replace('.fits', '_full.fits'), blorder=1,
+                            baselineRegion=[slice(0, 126, 1), slice(154, 276, 1),
+                                            slice(345, 399, 1), slice(464, 510, 1)],
+                            windowFunction=None, blankBaseline=False,
+                            flagSpike=False, v0=None, trimEdge=False)
 
 do_trim_N2Hp = False
 if do_trim_N2Hp:
@@ -54,6 +61,38 @@ if do_trim_N2Hp:
     rms.hdu.writeto(file_N2Hp_base_erode_rms, overwrite=True)
     subcube.write(file_N2Hp_base_erode, overwrite=True)
 
+do_trim_N2Hp_full = False
+if do_trim_N2Hp_full:
+    from skimage.morphology import disk,erosion
+    cube = SC.read(file_N2Hp_base.replace('_rebase1.fits', '_full_rebase1.fits'))
+    #
+    spectral_axis = cube.with_spectral_unit(u.km/u.s, velocity_convention='radio').spectral_axis
+    good_channels = ((spectral_axis > 1.2*u.km/u.s) & (spectral_axis < 2.5*u.km/u.s)) | \
+                    ((spectral_axis > 8.5*u.km/u.s) & (spectral_axis < 11.9*u.km/u.s)) | \
+                    ((spectral_axis > 14.5*u.km/u.s) & (spectral_axis < 17.7*u.km/u.s))
+    bad_channels = ~good_channels
+    # mask original cube
+    masked_cube = cube.with_mask(bad_channels[:, np.newaxis, np.newaxis])
+    # get rms and mask pixels noisier than 0.5 K
+    # after an erosion of the mask
+    # save the minimal subcube
+    rms = masked_cube.std(axis=0)
+    rms_mask = (rms < 0.7)
+    rms_mask &= erosion(rms_mask, disk(5))
+    data = cube.unmasked_data[:, :, :] * rms_mask
+    data[data[:, :, :] == 0.0] = np.nan
+    subcube = SC(data=data, wcs=cube.wcs, header=cube.header)[:, 23:226, 11:166] * u.K
+    #
+    signal_cube = subcube.with_mask(good_channels[:, np.newaxis, np.newaxis])
+    rms_cube = subcube.with_mask(bad_channels[:, np.newaxis, np.newaxis])
+    # calcualate rms and integrated itensity maps
+    rms = rms_cube.std(axis=0)
+    TdV = signal_cube.moment(order=0, axis=0).to(u.K * u.km/u.s)
+    # write out the files to be used
+    new_TdV_file = file_N2Hp_base_erode_TdV.replace('rebase1', 'full_rebase1')
+    TdV.hdu.writeto(new_TdV_file, overwrite=True)
+    rms.hdu.writeto(file_N2Hp_base_erode_rms.replace('_rebase1', '_full_rebase1'), overwrite=True)
+    subcube.write(file_N2Hp_base_erode.replace('_rebase1', '_full_rebase1'), overwrite=True)
 
 do_match_11 = False
 if do_match_11:

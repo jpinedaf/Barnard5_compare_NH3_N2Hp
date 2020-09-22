@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import pyspeckit
-import astropy.units as u
 import astropy.io.fits as fits
 import warnings
 import numpy as np

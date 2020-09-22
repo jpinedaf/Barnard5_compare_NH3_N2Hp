@@ -43,16 +43,16 @@ color_levels2 = ['#deebf7', '#c6dbef', '#9ecae1', '#6baed6',
                  '#4292c6', '#2171b5', '#08519c', '#08306b']
 # ['#ece2f0', '#a6bddb', '#1c9099', '#f6eff7','#bdc9e1','#67a9cf','#02818a', '#ece2f0']
 
-do_Tdv = False
-do_Vlsr = False
-do_Vlsr_diff = False
-do_sigma_v = False
+do_Tdv = True
+do_Vlsr = True
+do_Vlsr_diff = True
+do_sigma_v = True
 do_compare_V = True
-do_compare_dv = False
-do_ratio_dv = False
-do_compare_dv_nt = False
-do_compare_Tex = False
-do_compare_TdV = False
+do_compare_dv = True
+do_ratio_dv = True
+do_compare_dv_nt = True
+do_compare_Tex = True
+do_compare_TdV = True
 
 
 def my_KDE(data1, data2, xmin=0, xmax=10, ymin=0, ymax=10, weights=None):
@@ -254,7 +254,7 @@ if do_Vlsr_diff:
     fig0.ticks.set_color('black')
     add_markers_source(fig0, yso_color='yellow', cond_color='0.7')
     #
-    fig0.add_label(0.95, 0.81, r"$\delta$ V$_{LSR}$= ion - neutral", relative=True,
+    fig0.add_label(0.95, 0.81, r"$\delta V_{\rm LSR}$= ion - neutral", relative=True,
                    horizontalalignment='right')
     fig0.add_colorbar(box=bar_pos0, box_orientation='horizontal',
                       ticks=[-0.1, 0, 0.1], axis_label_text=r"(km s$^{-1}$)")
@@ -344,8 +344,8 @@ if do_compare_V:
         plt.plot(xrange, xrange, color='k')
         plt.plot(xrange, xrange+0.05, color='k', ls=':')
         plt.plot(xrange, xrange-0.05, color='k', ls=':')
-        plt.xlabel(r"V$_{LSR}$(NH$_3$) (km s$^{-1}$)")
-        plt.ylabel(r"V$_{LSR}$(N$_2$H$^+$) (km s$^{-1}$)")
+        plt.xlabel(r"$V_{\rm LSR}$(NH$_3$) (km s$^{-1}$)")
+        plt.ylabel(r"$V_{\rm LSR}$(N$_2$H$^+$) (km s$^{-1}$)")
         plt.xlim(xrange)
         plt.ylim(xrange)
         fig.savefig('figures/B5_compare_Vlsr.pdf', bbox_inches='tight')
@@ -358,8 +358,8 @@ if do_compare_V:
     levels = levels_norm * KDE_vlsr.max()
     cfset = ax.contourf(xx, yy, KDE_vlsr, colors=color_levels, zorder=2,
                         levels=levels_norm_l * KDE_vlsr.max())
-    plt.xlabel(r"V$_{LSR}$(NH$_3$) (km s$^{-1}$)")
-    plt.ylabel(r"V$_{LSR}$(N$_2$H$^+$) (km s$^{-1}$)")
+    plt.xlabel(r"$V_{\rm LSR}$(NH$_3$) (km s$^{-1}$)")
+    plt.ylabel(r"$V_{\rm LSR}$(N$_2$H$^+$) (km s$^{-1}$)")
     ax.set_xlim(xrange)
     ax.set_ylim(xrange)
     ax.plot(xrange, xrange, color='k', zorder=10)
@@ -370,11 +370,11 @@ if do_compare_V:
             transform=ax.transAxes)
     ax.text(0.72, 0.20, r'Ions vs Neutrals', horizontalalignment='center',
             transform=ax.transAxes)
-    ax.text(0.72, 0.14, r'Centroid velocity, $V_{LSR}$',
+    ax.text(0.72, 0.14, r'Centroid velocity, $V_{\rm LSR}$',
             horizontalalignment='center',
             transform=ax.transAxes)
     #
-    ax.text(10.35, 10.42, r'$\Delta V_{LSR}$ = $\pm$0.05 km s$^{-1}$',
+    ax.text(10.35, 10.42, r'$\Delta V_{\rm LSR}$ = $\pm$0.05 km s$^{-1}$',
             horizontalalignment='right')
     ax.annotate(text='', xy=(10.40, 10.35), xytext=(10.40, 10.45),
                 arrowprops=dict(arrowstyle='<->'))
