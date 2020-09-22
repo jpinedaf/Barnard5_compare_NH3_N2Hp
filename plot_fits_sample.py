@@ -5,15 +5,18 @@ import matplotlib as mpl
 from matplotlib import rc
 import numpy as np
 from pyspeckit.spectrum.models import ammonia
-from astropy.io import fits
+# from astropy.io import fits
 
 from config import mergedFile_N2Hp, file_N2Hp_base_erode,\
     file_N2Hp_base_erode_TdV, file_NH3_11_match_TdV,\
+    mergedFile_N2Hp, \
     mergedFile_NH3, file_NH3_11_match, file_NH3_22_match, thickFile_NH3, \
     clev_N2Hp, clev_NH3_11, distance
 
+do_N2Hp = True
+do_NH3 = True
 
-scale_bar = 10e3/distance * u.arcsec
+scale_bar = 10e3 / distance * u.arcsec
 scale_text = '10,000 au'
 
 NaN_color = '0.9'
@@ -27,22 +30,26 @@ plt.ion()
 x_list = np.array([63, 62, 45, 49, 48])
 y_list = np.array([82, 110, 160, 39, 100])
 freqLine = 93173704000.0 * u.Hz
+freqLine11 = 23694.4955 * u.MHz
 
-do_N2Hp = True
 if do_N2Hp:
     cube = pyspeckit.Cube(file_N2Hp_base_erode)
     cube.xarr.refX = freqLine
     cube.xarr.velocity_convention = 'radio'
     cube.xarr.convert_to_unit('km/s')
     cube.Registry.add_fitter('n2hp_vtau', pyspeckit.models.n2hp.n2hp_vtau_fitter, 4)
+    cube.load_model_fit(mergedFile_N2Hp, fittype='n2hp_vtau',
+                          npars=4, npeaks=1, _temp_fit_loc=(x_list[0], y_list[0]))
 
-do_NH3 = True
 if do_NH3:
     #cube.load_model_fit(mergedFile_N2Hp, npars=4, npeaks=1, _temp_fit_loc=(x_list[0], y_list[0]))
     #ff, hd_ff = fits.getdata(file_NH3_11_match, header=True)
     #hd_ff.update(OBJECT='Barnard 5')
     #fits.writeto(file_NH3_11_match, ff, hd_ff, overwrite=True)
     cube11 = pyspeckit.Cube(file_NH3_11_match)
+    cube11.xarr.refX = freqLine11
+    cube11.xarr.velocity_convention = 'radio'
+    cube11.xarr.convert_to_unit('km/s')
     cube11.specfit.Registry.add_fitter('cold_ammonia',
            ammonia.cold_ammonia_model(), 6)
     #thickFile_NH3
@@ -53,11 +60,13 @@ if do_NH3:
 
 for x_pix, y_pix in zip(x_list, y_list):
     if do_N2Hp:
-        cube.plot_spectrum(x_pix, y_pix, plot_fit=True)
+        cube.plot_spectrum(x_pix, y_pix, plot_fit=True,
+                           xmin=-1, xmax=18.5)
         plt.savefig('figures/B5_N2Hp_fit_x{0}_y{1}.pdf'.format(x_pix, y_pix))
     # mergedFile_NH3
     if do_NH3:
-        cube11.plot_spectrum(x_pix, y_pix, plot_fit=True)
+        cube11.plot_spectrum(x_pix, y_pix, plot_fit=True,
+                             xmin=-11, xmax=33)
         plt.savefig('figures/B5_NH3_11_fit_x{0}_y{1}.pdf'.format(x_pix, y_pix))
 
 import aplpy
@@ -117,4 +126,4 @@ fig1.add_colorbar(box=bar_pos1, box_orientation='horizontal',
 fig0.set_system_latex(True)
 fig1.set_system_latex(True)
 
-fig.savefig('figures/B5_sample_spec.pdf', bbox_inches='tight')
+# fig.savefig('figures/B5_sample_spec.pdf', bbox_inches='tight')
