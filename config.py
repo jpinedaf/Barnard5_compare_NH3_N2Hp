@@ -64,3 +64,15 @@ ra_B5Cond2 = (3 + (47 + 41.627/60.)/60.) * 15 # * u.deg
 dec_B5Cond2 = (32 + (51 + 56.81/60.)/60.) # * u.deg
 ra_B5Cond3 = (3 + (47 + 42.778/60.)/60.) * 15 # * u.deg
 dec_B5Cond3 = (32 + (51 + 30.31/60.)/60.) # * u.deg
+
+def add_markers_source(figure, yso_color='yellow', cond_color='black'):
+    """
+
+    """
+    figure.show_markers(ra_B5IRS1, dec_B5IRS1, marker='*', s=40, layer='YSO',
+                        facecolor=yso_color, edgecolor='k', zorder=31)
+    figure.show_markers(np.array([ra_B5Cond1, ra_B5Cond2, ra_B5Cond3]),
+                        np.array([dec_B5Cond1, dec_B5Cond2, dec_B5Cond3]),
+                        marker='o', s=10, layer='Condensations', alpha=0.5,
+                        facecolor=cond_color, edgecolor='k', zorder=32)
+    return
