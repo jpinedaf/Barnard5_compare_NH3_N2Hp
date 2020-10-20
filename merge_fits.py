@@ -13,9 +13,9 @@ from config import thinFile_N2Hp, thickFile_N2Hp, mergedFile_N2Hp,\
     mergedFile_NH3_N_NH3, mergedFile_NH3_eN_NH3,\
     thickFile_NH3, thinFile_NH3, mergedFile_NH3
 
-do_N2Hp = False
-do_N2Hp_full = True
-do_NH3 = False
+do_N2Hp = True
+do_N2Hp_full = False
+do_NH3 = True
 
 dv_N2Hp = 0.1 / 2.355  # km/s
 dv_N2Hp_full = 0.049 / 2.355  # km/s
@@ -43,7 +43,11 @@ if do_N2Hp:
     # replace 0 with NaNs
     bad = (merged == 0.)
     if np.sum(bad) != 0:
+        merged[bad] = 0.0
+        fits.writeto(mergedFile_N2Hp, merged, hd, overwrite=True)
         merged[bad] = np.nan
+    else:
+        fits.writeto(mergedFile_N2Hp, merged, hd, overwrite=True)
     key_list = ['NAXIS3', 'CRPIX3', 'CDELT3', 'CUNIT3', 'CTYPE3', 'CRVAL3']
     hd_new = hd.copy()
     for key_i in key_list:
@@ -51,7 +55,6 @@ if do_N2Hp:
     hd_new['NAXIS'] = 2
     hd_new['WCSAXES'] = 2
     # velocity dispersion corrected by channel width
-    fits.writeto(mergedFile_N2Hp, merged, hd, overwrite=True)
     hd_new['BUNIT'] = 'K'
     fits.writeto(mergedFile_N2Hp_Tex, merged[0, :, :], hd_new, overwrite=True)
     fits.writeto(mergedFile_N2Hp_eTex, merged[4, :, :], hd_new, overwrite=True)
@@ -87,7 +90,11 @@ if do_N2Hp_full:
     # replace 0 with NaNs
     bad = (merged == 0.)
     if np.sum(bad) != 0:
+        merged[bad] = 0.0
+        fits.writeto(mergedFile_N2Hp.replace('.fits', '_full.fits'), merged, hd, overwrite=True)
         merged[bad] = np.nan
+    else:
+        fits.writeto(mergedFile_N2Hp.replace('.fits', '_full.fits'), merged, hd, overwrite=True)
     key_list = ['NAXIS3', 'CRPIX3', 'CDELT3', 'CUNIT3', 'CTYPE3', 'CRVAL3']
     hd_new = hd.copy()
     for key_i in key_list:
@@ -95,8 +102,6 @@ if do_N2Hp_full:
     hd_new['NAXIS'] = 2
     hd_new['WCSAXES'] = 2
     # velocity dispersion corrected by channel width
-
-    fits.writeto(mergedFile_N2Hp.replace('.fits', '_full.fits'), merged, hd, overwrite=True)
     hd_new['BUNIT'] = 'K'
     fits.writeto(mergedFile_N2Hp_Tex.replace('.fits', '_full.fits'), merged[0, :, :], hd_new, overwrite=True)
     fits.writeto(mergedFile_N2Hp_eTex.replace('.fits', '_full.fits'), merged[4, :, :], hd_new, overwrite=True)
@@ -143,14 +148,17 @@ if do_NH3:
     # replace 0 with NaNs
     bad = (merged == 0.)
     if np.sum(bad) != 0:
+        merged[bad] = 0.0
+        fits.writeto(mergedFile_NH3, merged, hd, overwrite=True)
         merged[bad] = np.nan
+    else:
+        fits.writeto(mergedFile_NH3, merged, hd, overwrite=True)
     key_list = ['NAXIS3', 'CRPIX3', 'CDELT3', 'CUNIT3', 'CTYPE3', 'CRVAL3']
     hd_new = hd.copy()
     for key_i in key_list:
         hd_new.remove(key_i)
     hd_new['NAXIS'] = 2
     hd_new['WCSAXES'] = 2
-    # fits.writeto(mergedFile_NHp, merged, hd, overwrite=True)
     dv = np.sqrt(merged[3, :, :]**2 - dv_NH3**2)
     edv = merged[9, :, :] * merged[3, :, :] / dv
     #
@@ -172,7 +180,6 @@ if do_NH3:
     bad = np.isnan(eTex * eTk)
     N_NH3[bad] = np.nan
     eN_NH3[bad] = np.nan
-    fits.writeto(mergedFile_NH3, merged, hd, overwrite=True)
     hd_new['BUNIT'] = 'km s-1'
     fits.writeto(mergedFile_NH3_Vlsr, merged[4, :, :], hd_new, overwrite=True)
     fits.writeto(mergedFile_NH3_eVlsr, merged[10, :, :], hd_new, overwrite=True)

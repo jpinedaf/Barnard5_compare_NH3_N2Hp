@@ -7,13 +7,16 @@ import numpy as np
 from pyspeckit.spectrum.models import ammonia
 from astropy.io import fits
 from spectral_cube import SpectralCube as SC
+import aplpy
 
-from config import mergedFile_N2Hp, file_N2Hp_base_erode,\
-    file_N2Hp_base_erode_TdV, file_NH3_11_match_TdV,\
-    mergedFile_N2Hp, \
-    mergedFile_NH3, file_NH3_11_match, file_NH3_22_match, \
-    thinFile_NH3, thickFile_NH3, \
-    clev_N2Hp, clev_NH3_11, distance
+from config import *
+#
+#import mergedFile_N2Hp, file_N2Hp_base_erode,\
+ #   file_N2Hp_base_erode_TdV, file_NH3_11_match_TdV,\
+ #   mergedFile_N2Hp, \
+ #   mergedFile_NH3, file_NH3_11_match, file_NH3_22_match, \
+ #   thinFile_NH3, thickFile_NH3, \
+ #   clev_N2Hp, clev_NH3_11, distance
 
 do_N2Hp = True
 do_NH3 = True
@@ -40,39 +43,39 @@ if do_N2Hp:
     cube.xarr.velocity_convention = 'radio'
     cube.xarr.convert_to_unit('km/s')
     cube.Registry.add_fitter('n2hp_vtau', pyspeckit.models.n2hp.n2hp_vtau_fitter, 4)
+    xarr_N2Hp = cube.xarr
     data, hd = fits.getdata(mergedFile_N2Hp, header=True)
-    data[np.isnan(data)] = 0.0
-    fits.writeto('test.fits', data, header=hd, overwrite=True)
-    cube.load_model_fit('test.fits', fittype='n2hp_vtau',
-                          npars=4, npeaks=1, _temp_fit_loc=(x_list[0], y_list[0]))
+    #data[np.isnan(data)] = 0.0
+    #fits.writeto('test.fits', data, header=hd, overwrite=True)
+    #cube.load_model_fit('test.fits', fittype='n2hp_vtau',
+    cube.load_model_fit(mergedFile_N2Hp, fittype='n2hp_vtau',
+                        npars=4, npeaks=1, _temp_fit_loc=(x_list[0], y_list[0]))
     cube_sc = (SC.read(file_N2Hp_base_erode)).with_spectral_unit(u.km / u.s,
                                                                 velocity_convention='radio')
     model_N2Hp = pyspeckit.models.n2hp.n2hp_vtau_fitter.n_modelfunc
 
 if do_NH3:
     model_NH3 = pyspeckit.spectrum.models.ammonia.cold_ammonia_model().n_modelfunc
-
-    #cube.load_model_fit(mergedFile_N2Hp, npars=4, npeaks=1, _temp_fit_loc=(x_list[0], y_list[0]))
-    #ff, hd_ff = fits.getdata(file_NH3_11_match, header=True)
-    #hd_ff.update(OBJECT='Barnard 5')
-    #fits.writeto(file_NH3_11_match, ff, hd_ff, overwrite=True)
     cube11 = pyspeckit.Cube(file_NH3_11_match)
     cube11.xarr.refX = freqLine11
     cube11.xarr.velocity_convention = 'radio'
     cube11.xarr.convert_to_unit('km/s')
     cube11.specfit.Registry.add_fitter('cold_ammonia',
            ammonia.cold_ammonia_model(), 6)
+    xarr_NH3 = cube11.xarr
     #thickFile_NH3
     #cube11.load_model_fit(mergedFile_NH3, fittype='cold_ammonia', npars=6, npeaks=1, _temp_fit_loc=(x_list[0], y_list[0]))
     #cube11.load_model_fit('test_fit.fits', fittype='cold_ammonia',
     data2, hd2 = fits.getdata(mergedFile_NH3, header=True)
-    data2[np.isnan(data2)] = 0.0
-    fits.writeto('test2.fits', data2, header=hd2, overwrite=True)
+    #data2[np.isnan(data2)] = 0.0
+    #fits.writeto('test2.fits', data2, header=hd2, overwrite=True)
     # data2_hdu = fits.PrimaryHDU(data2, hd2)
-    cube11.load_model_fit('test2.fits', fittype='cold_ammonia',
+    #cube11.load_model_fit('test2.fits', fittype='cold_ammonia',
+    cube11.load_model_fit(mergedFile_NH3, fittype='cold_ammonia',
                           npars=6, npeaks=1, _temp_fit_loc=(x_list[0], y_list[0]))
     cube11_sc = (SC.read(file_NH3_11_match)).with_spectral_unit(u.km / u.s,
                                                 velocity_convention='radio')
+    #cube11_sc[0, :, :] = 0.0
 
 for x_pix, y_pix in zip(x_list, y_list):
     if do_N2Hp:
@@ -80,13 +83,18 @@ for x_pix, y_pix in zip(x_list, y_list):
                            xmin=-1, xmax=18.5, ypeakscale=1.1)
         plt.savefig('figures/B5_N2Hp_fit_x{0}_y{1}.pdf'.format(x_pix, y_pix))
 
-        fig_a, ax_a = plt.subplots(figsize=(7, 4))
-        ax_a.plot(cube_sc.spectral_axis, cube_sc[:, y_pix, x_pix],
+        fig_a, ax_a = plt.subplots(figsize=(7, 3))
+        data_i = cube_sc[:, y_pix, x_pix].value
+        model_i = model_N2Hp(data[:, y_pix, x_pix])(xarr_N2Hp)
+        ax_a.plot(cube_sc.spectral_axis, data_i,
                   color='k', lw=1, drawstyle='steps-mid')
-        ax_a.plot(cube_sc.spectral_axis,
-                  model_N2Hp(data[:, y_pix, x_pix])(cube.xarr),
+        ax_a.plot(cube_sc.spectral_axis, model_i,
                   color='red', lw=1)
+        ax_a.plot(cube_sc.spectral_axis, model_i - data_i - 0.4,
+                  color='gray', lw=1, drawstyle='steps-mid')
         ax_a.set_xlim(0, 18.5)
+        ax_a.set_xlabel(r'Velocity (km s$^{-1}$)')
+        ax_a.set_ylabel(r'T$_{MB}$ (K)')
         fig_a.savefig('figures/B5_N2Hp_fit_x{0}_y{1}_v2.pdf'.format(x_pix, y_pix))
     # mergedFile_NH3
     if do_NH3:
@@ -94,16 +102,20 @@ for x_pix, y_pix in zip(x_list, y_list):
                              xmin=-11, xmax=33, ypeakscale=1.1)
         plt.savefig('figures/B5_NH3_11_fit_x{0}_y{1}.pdf'.format(x_pix, y_pix))
 
-        fig_b, ax_b = plt.subplots(figsize=(7, 4))
-        ax_b.plot(cube11_sc.spectral_axis, cube11_sc[:, y_pix, x_pix],
-                  color='k', lw=1)
-        ax_b.plot(cube11_sc.spectral_axis,
-                  model_NH3(data2[0:6, y_pix, x_pix])(cube11.xarr),
-                  color='red')
+        fig_b, ax_b = plt.subplots(figsize=(7, 3))
+        data_i = cube11_sc[:, y_pix, x_pix].value
+        model_i = model_NH3(data2[0:6, y_pix, x_pix])(xarr_NH3)
+        ax_b.plot(cube11_sc.spectral_axis, data_i,
+                  color='k', lw=1, drawstyle='steps-mid')
+        ax_b.plot(cube11_sc.spectral_axis, model_i,
+                  color='red', lw=1)
+        ax_b.plot(cube11_sc.spectral_axis, model_i - data_i - 0.2,
+                  color='gray', lw=1, drawstyle='steps-mid')
         ax_b.set_xlim(-12, 33)
+        ax_b.set_xlabel(r'Velocity (km s$^{-1}$)')
+        ax_b.set_ylabel(r'T$_{MB}$ (K)')
         fig_b.savefig('figures/B5_NH3_fit_x{0}_y{1}_v2.pdf'.format(x_pix, y_pix))
 
-import aplpy
 
 subplot0 = [0.1, 0.1, 0.4, 0.85]
 subplot1 = [0.5, 0.1, 0.4, 0.85]
