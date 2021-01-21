@@ -15,7 +15,7 @@ from config import thinFile_N2Hp, thickFile_N2Hp, mergedFile_N2Hp,\
 
 do_N2Hp = True
 do_N2Hp_full = False
-do_NH3 = True
+do_NH3 = False
 
 dv_N2Hp = 0.1 / 2.355  # km/s
 dv_N2Hp_full = 0.049 / 2.355  # km/s
@@ -33,8 +33,9 @@ if do_N2Hp:
     thick, hd = fits.getdata(thickFile_N2Hp, header=True)
     thin = fits.getdata(thinFile_N2Hp)
     # mask of tau > 3*sigma_tau
-    mask = (thick[1, :, :] > 3 * thick[5, :, :]) &\
-           (thick[1, :, :] < 30.)
+    # and Tex != 0
+    mask = (thick[1, :, :] > 3 * thick[5, :, :]) & \
+           (thick[1, :, :] < 30.) & (thick[0, :, :] < 20.)
     merged = mask * thick + (1 - mask) * thin
     # QA
     # Poorly constrained velocity dispersion, errors of 0.02 km/s

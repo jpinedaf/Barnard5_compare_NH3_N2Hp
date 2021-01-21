@@ -20,7 +20,7 @@ from config import file_N2Hp_base_erode, file_N2Hp_base_erode_rms, file_N2Hp_bas
             clev_N2Hp, clev_NH3_11, clev_NH3_22,\
             ra_B5IRS1, dec_B5IRS1, ra_B5Cond1, dec_B5Cond1,\
             ra_B5Cond2, dec_B5Cond2, ra_B5Cond3, dec_B5Cond3
-
+plt.ion()
 mpl.rcParams['xtick.direction'] = 'in'
 mpl.rcParams['ytick.direction'] = 'in'
 rc('font', **{'family': 'serif'})
@@ -41,18 +41,17 @@ color_levels = ['#ffffcc', '#ffeda0', '#fed976', '#feb24c',
                 '#fd8d3c', '#fc4e2a', '#e31a1c', '#b10026']
 color_levels2 = ['#deebf7', '#c6dbef', '#9ecae1', '#6baed6',
                  '#4292c6', '#2171b5', '#08519c', '#08306b']
-# ['#ece2f0', '#a6bddb', '#1c9099', '#f6eff7','#bdc9e1','#67a9cf','#02818a', '#ece2f0']
+color_N2Hp = '#377eb8'
+color_NH3 = '#e41a1c'
 
-do_Tdv = True
-do_Vlsr = True
-do_Vlsr_diff = True
-do_sigma_v = True
-do_compare_V = True
-do_compare_dv = True
-do_ratio_dv = True
+do_Tdv = False
+do_Vlsr = False
+do_Vlsr_diff = False
+do_sigma_v = False
+do_compare_V = False
+do_compare_dv = False
+do_ratio_dv = False
 do_compare_dv_nt = True
-do_compare_Tex = True
-do_compare_TdV = True
 
 
 def my_KDE(data1, data2, xmin=0, xmax=10, ymin=0, ymax=10, weights=None):
@@ -223,9 +222,6 @@ if do_Vlsr:
     add_markers_source(fig0, yso_color='yellow', cond_color='0.7')
     add_markers_source(fig1, yso_color='yellow', cond_color='0.7')
     fig.savefig('figures/B5_Vlsr_maps.pdf', bbox_inches='tight')
-    fig0.show_contour(file_NH3_11_match_TdV, levels=clev_NH3_11, colors='0.2',
-                      linewidths=0.5, linestyles=':')
-    fig.savefig('figures/B5_Vlsr_maps_contour.pdf', bbox_inches='tight')
 
 if do_Vlsr_diff:
     bar_pos0 = [0.60, 0.5, 0.20, 0.025]
@@ -323,9 +319,6 @@ if do_sigma_v:
     add_markers_source(fig1, yso_color='yellow', cond_color='0.7')
     #
     fig.savefig('figures/B5_sigma_v_maps.pdf', bbox_inches='tight')
-    fig0.show_contour(file_NH3_11_match_TdV, levels=clev_NH3_11, colors='0.2',
-                      linewidths=0.5, linestyles=':')
-    fig.savefig('figures/B5_sigma_v_maps_contour.pdf', bbox_inches='tight')
 
 if do_compare_V:
     plt.ion()
@@ -337,19 +330,6 @@ if do_compare_V:
     gd = np.isfinite(V_NH3 * V_N2Hp)
     xrange = np.array([9.93, 10.52])
     #
-    if False:
-        fig = plt.figure(figsize=(4, 4))
-        plt.errorbar(V_NH3[gd], V_N2Hp[gd], yerr=eV_N2Hp[gd], xerr=eV_NH3[gd],
-                     fmt='or', color='red', alpha=0.05)
-        plt.plot(xrange, xrange, color='k')
-        plt.plot(xrange, xrange+0.05, color='k', ls=':')
-        plt.plot(xrange, xrange-0.05, color='k', ls=':')
-        plt.xlabel(r"$V_{\rm LSR}$(NH$_3$) (km s$^{-1}$)")
-        plt.ylabel(r"$V_{\rm LSR}$(N$_2$H$^+$) (km s$^{-1}$)")
-        plt.xlim(xrange)
-        plt.ylim(xrange)
-        fig.savefig('figures/B5_compare_Vlsr.pdf', bbox_inches='tight')
-    # try the KDE
     xx, yy, KDE_vlsr = my_KDE(V_NH3[gd], V_N2Hp[gd],
                               weights=1./(eV_NH3[gd]*eV_N2Hp[gd]),
                               xmin=xrange[0], xmax=xrange[1],
@@ -392,17 +372,9 @@ if do_compare_dv:
     gd = np.isfinite(dv_NH3 * dv_N2Hp * edv_N2Hp * edv_NH3)
     xrange = np.array([0.045, 0.235])
     #
-    if False:
-        fig = plt.figure(figsize=(4, 4))
-        plt.errorbar(dv_NH3[gd], dv_N2Hp[gd], yerr=edv_N2Hp[gd], xerr=edv_NH3[gd],
-                     fmt='or', color='red', alpha=0.01)
-        plt.plot(xrange, xrange)
-        plt.xlabel(r"$\sigma_{v}$(NH$_3$) (km s$^{-1}$)")
-        plt.ylabel(r"$\sigma_{v}$(N$_2$H$^+$) (km s$^{-1}$)")
-        plt.xlim(xrange)
-        plt.ylim(xrange)
-        fig.savefig('figures/B5_compare_sigma_v.pdf', bbox_inches='tight')
-    # try the KDE
+    dv_diff = np.round(np.mean(dv_N2Hp[gd] - dv_NH3[gd]), decimals=3)
+    dv_diff = 0.015
+    print('Mean difference = {0:.3}'.format(dv_diff))
     xx, yy, KDE_dv = my_KDE(dv_NH3[gd], dv_N2Hp[gd],
                             weights=1./(edv_NH3[gd]*edv_N2Hp[gd]),
                             xmin=xrange[0], xmax=xrange[1],
@@ -416,7 +388,7 @@ if do_compare_dv:
     ax.set_xlim(xrange)
     ax.set_ylim(xrange)
     ax.plot(xrange, xrange, color='k', zorder=10)
-    ax.plot(xrange, xrange + 0.02, color='k', zorder=11, ls=':')
+    ax.plot(xrange, xrange + dv_diff, color='k', zorder=11, ls=':')
     ax.set_xticks([0.05, 0.10, 0.15, 0.2])
     ax.set_yticks([0.05, 0.10, 0.15, 0.2])
     ax.text(0.72, 0.26, r'Barnard 5', horizontalalignment='center',
@@ -430,9 +402,11 @@ if do_compare_dv:
             horizontalalignment='center',
             transform=ax.transAxes)
     #
-    ax.text(0.195, 0.21, r'$\Delta \sigma_v$ = 0.02 km s$^{-1}$',
-            horizontalalignment='right')
-    ax.annotate(text='', xy=(0.20, 0.20), xytext=(0.20, 0.22),
+    label_text = r'$\Delta \sigma_v$ = '
+    label_text += '{0:.3}'.format(dv_diff)
+    label_text += ' km s$^{-1}$'
+    ax.text(0.195, 0.2 + dv_diff, label_text, horizontalalignment='right')
+    ax.annotate(text='', xy=(0.2, 0.2), xytext=(0.2, 0.2 + dv_diff),
                 arrowprops=dict(arrowstyle='<->'))
     fig.savefig('figures/B5_compare_sigma_v_KDE.pdf', bbox_inches='tight')
 
@@ -486,6 +460,24 @@ if do_compare_dv_nt:
     #
     wt = 1. / (edv_NH3[gd] * edv_N2Hp[gd])
     gd = np.isfinite(dv_nt_N2Hp * dv_nt_NH3 * wt)
+    #
+    mean_sigma_nt_ion = np.nanmean(dv_nt_N2Hp[gd])
+    mean_sigma_nt_neutral = np.nanmean(dv_nt_NH3[gd])
+    mean_sigmasigma = np.nanmean(np.sqrt(dv_nt_NH3[gd] * dv_nt_N2Hp[gd]))
+    p_range = np.array([0.15865 * 100, 50., 0.84135 * 100])
+    #
+    sigma_mean_nt_ion = np.round(np.percentile(dv_nt_N2Hp[gd], p_range), decimals=3)
+    sigma_mean_nt_neutral = np.round(np.percentile(dv_nt_NH3[gd], p_range), decimals=3)
+    label_sigma_nt_NH3 = '<sigma_nt,NH3> = {0:.3f} _{1:.3f} ^+{2:5.3f}'
+    print(label_sigma_nt_NH3.format(sigma_mean_nt_neutral[1],
+                                    sigma_mean_nt_neutral[0] - sigma_mean_nt_neutral[1],
+                                    sigma_mean_nt_neutral[2] - sigma_mean_nt_neutral[1]))
+    label_sigma_nt_N2Hp = '<sigma_nt,N2Hp> = {0:.3f} _{1:.3f} ^+{2:5.3f}'
+    print(label_sigma_nt_N2Hp.format(sigma_mean_nt_ion[1],
+                                     sigma_mean_nt_ion[0] - sigma_mean_nt_ion[1],
+                                     sigma_mean_nt_ion[2] - sigma_mean_nt_ion[1]))
+    print('<sqrt(sigma_nt,NH3 * sigma_nt,N2H+)> = {0:.3}'.format(mean_sigmasigma))
+    #
     xx, yy, KDE_dv = my_KDE(dv_nt_NH3[gd].value, dv_nt_N2Hp[gd].value,
                             weights=wt[gd].value,
                             xmin=xrange[0], xmax=xrange[1],
@@ -523,9 +515,9 @@ if do_compare_dv_nt:
     ax.plot(cs_tk_mean * np.array([0.5, 0]), cs_tk_mean * np.array([1, 1]) * 0.5,
             ls='--', color='#80b1d3')
     ax.plot(cs_tk_mean * np.array([1, 1]), cs_tk_mean*np.array([0.5, 1]),
-            ls='--', color='#80b1d3')#  , transform=ax.transAxes)
+            ls='--', color='#80b1d3')
     ax.plot(cs_tk_mean * np.array([1, 1]) * 0.5, cs_tk_mean*np.array([0.5, 0]),
-            ls='--', color='#80b1d3')#  , transform=ax.transAxes)
+            ls='--', color='#80b1d3')
     ax.text(0.085, 0.025, r'$\mathcal{M}_s=0.5$',
             horizontalalignment='right')
     ax.text(0.085, 0.180, r'$\mathcal{M}_s=1$',
@@ -536,133 +528,43 @@ if do_compare_dv_nt:
     xrange2 = [0., 1.3]
     gd_N2Hp = np.isfinite(Mach_N2Hp)
     gd_NH3 = np.isfinite(Mach_NH3)
-    KDE_Mach_N2Hp = stats.gaussian_kde(Mach_N2Hp[gd_N2Hp])#  , weights=1./edv_N2Hp[gd]**2)
-    KDE_Mach_NH3 = stats.gaussian_kde(Mach_NH3[gd_NH3])#  , weights=1./edv_NH3[gd]**2)
+    KDE_Mach_N2Hp = stats.gaussian_kde(Mach_N2Hp[gd_N2Hp])
+    KDE_Mach_NH3 = stats.gaussian_kde(Mach_NH3[gd_NH3])
     positions = np.arange(xrange2[0], xrange2[1], 0.01)
-    ax2.plot(positions, KDE_Mach_N2Hp(positions), color='#e41a1c', label=r'N$_2$H$^+$')
-    ax2.plot(positions, KDE_Mach_NH3(positions), color='#377eb8', label=r'NH$_3$')
-    #ax2.legend()
-    ax2.text(0.78, 0.8,  r'N$_2$H$^+$', color='#e41a1c', transform=ax2.transAxes, size=14, weight=60)
-    ax2.text(0.78, 0.87,  r'NH$_3$', color='#377eb8', transform=ax2.transAxes, size=14, weight=60)
+    ax2.plot(positions, KDE_Mach_N2Hp(positions), color=color_N2Hp, label=r'N$_2$H$^+$')
+    ax2.plot(positions, KDE_Mach_NH3(positions), color=color_NH3, label=r'NH$_3$')
+    #
+    ax2.text(0.78, 0.8,  r'N$_2$H$^+$', color=color_N2Hp, transform=ax2.transAxes, size=14, weight=60)
+    ax2.text(0.78, 0.87,  r'NH$_3$', color=color_NH3, transform=ax2.transAxes, size=14, weight=60)
     ax2.set_xlabel(r"Sonic Mach number, $\mathcal{M}_{s}$")
     ax2.set_ylabel(r"Density")
     ax2.set_xlim(xrange2)
     ax2.set_xticks([0, 0.3, 0.6, 0.9, 1.2])
     Mach_N2Hp_med = np.round(np.median(Mach_N2Hp[gd_N2Hp]), decimals=2)
     Mach_NH3_med = np.round(np.median(Mach_NH3[gd_NH3]), decimals=2)
-    ax2.plot([Mach_N2Hp_med, Mach_N2Hp_med], [0, 0.5], color='#e41a1c', ls='--')
-    ax2.plot([Mach_NH3_med, Mach_NH3_med], [0, 0.5], color='#377eb8', ls='--')
-    ax2.text(Mach_N2Hp_med, 0.51, r'{0}'.format(Mach_N2Hp_med),
-             horizontalalignment='center', color='#e41a1c',
+    #
+    sigma_Mach_N2Hp = np.round(np.percentile(Mach_N2Hp[gd_N2Hp], p_range), decimals=2)
+    sigma_Mach_NH3 = np.round(np.percentile(Mach_NH3[gd_NH3], p_range), decimals=2)
+    label_Mach_NH3 = '<Mach,NH3> = {0:.2f} _{1:.2f} ^+{2:.2f}'
+    label_Mach_N2Hp = '<Mach,N2Hp> = {0:.2f} _{1:.2f} ^+{2:.2f}'
+    print(label_Mach_N2Hp.format(sigma_Mach_N2Hp[1],
+                                 sigma_Mach_N2Hp[0] - sigma_Mach_N2Hp[1],
+                                 sigma_Mach_N2Hp[2] - sigma_Mach_N2Hp[1]))
+    print(label_Mach_NH3.format(sigma_Mach_NH3[1],
+                                sigma_Mach_NH3[0] - sigma_Mach_NH3[1],
+                                sigma_Mach_NH3[2] - sigma_Mach_NH3[1]))
+    ax2.plot([Mach_N2Hp_med, Mach_N2Hp_med], [0, 0.25], color=color_N2Hp, ls='--')
+    ax2.plot([Mach_NH3_med, Mach_NH3_med], [0, 0.5], color=color_NH3, ls='--')
+    ax2.text(Mach_N2Hp_med-0.07, 0.28, r'{0}$_{{{1:.2f}}}^{{+{2:.2f}}}$'.format(Mach_N2Hp_med,
+                                                        sigma_Mach_N2Hp[0] - sigma_Mach_N2Hp[1],
+                                                        sigma_Mach_N2Hp[2] - sigma_Mach_N2Hp[1]),
+             horizontalalignment='left', color=color_N2Hp,
              size=13, weight=60)
-    ax2.text(Mach_NH3_med, 0.51, r'{0}'.format(Mach_NH3_med),
-             horizontalalignment='center', color='#377eb8',
+    #r'{0}'.format(Mach_NH3_med),
+    ax2.text(Mach_NH3_med-0.07, 0.51, r'{0}$_{{{1:.2f}}}^{{+{2:.2f}}}$'.format(Mach_NH3_med,
+                                                        sigma_Mach_NH3[0] - sigma_Mach_NH3[1],
+                                                        sigma_Mach_NH3[2] - sigma_Mach_NH3[1]),
+             horizontalalignment='left', color=color_NH3,
              size=13, weight=60)
     fig2.savefig('figures/B5_compare_sigma_NT_KDE_dist.pdf', bbox_inches='tight')
 
-if do_compare_Tex:
-    plt.ion()
-    plt.close()
-    tex_NH3 = fits.getdata(mergedFile_NH3_Tex)*u.K
-    etex_NH3 = fits.getdata(mergedFile_NH3_eTex)*u.K
-    tk_NH3 = fits.getdata(mergedFile_NH3_Tk)*u.K
-    etk_NH3 = fits.getdata(mergedFile_NH3_eTk)*u.K
-    tex_N2Hp = fits.getdata(mergedFile_N2Hp_Tex)*u.K
-    etex_N2Hp = fits.getdata(mergedFile_N2Hp_eTex)*u.K
-    tau_N2Hp = fits.getdata(mergedFile_N2Hp_tau)
-    gd = np.isfinite(tex_N2Hp * tex_NH3 * etex_N2Hp * etex_NH3 * tk_NH3 * etk_NH3)\
-         * (tau_N2Hp != 0.1)
-    xrange = np.array([0.0, 19])
-    #
-    # try the KDE
-    wt = 1. / (etex_NH3 * etex_N2Hp)
-    wt_N2Hp = 1. / (etk_NH3 * etex_N2Hp)
-    wt_NH3 = 1. / (etex_NH3 * etk_NH3)
-    xx, yy, KDE_tex = my_KDE(tex_NH3[gd].value, tex_N2Hp[gd].value,
-                             weights=wt[gd].value,
-                             xmin=xrange[0], xmax=xrange[1],
-                             ymin=xrange[0], ymax=xrange[1])
-    xx, yy, KDE_NH3 = my_KDE(tk_NH3[gd].value, tex_NH3[gd].value,
-                             weights=wt[gd].value,
-                             xmin=xrange[0], xmax=xrange[1],
-                             ymin=xrange[0], ymax=xrange[1])
-    xx, yy, KDE_N2Hp = my_KDE(tk_NH3[gd].value, tex_N2Hp[gd].value,
-                              weights=wt_N2Hp[gd].value,
-                              xmin=xrange[0], xmax=xrange[1],
-                              ymin=xrange[0], ymax=xrange[1])
-    #
-    fig, ax = plt.subplots(figsize=(4, 4))
-    levels = levels_norm * KDE_tex.max()
-    cfset = ax.contourf(xx, yy, KDE_tex, colors=color_levels, zorder=2,
-                        levels=levels_norm_l * KDE_tex.max())
-    ax.set_xlabel(r"$T_{ex}$(NH$_3$) (K)")
-    ax.set_ylabel(r"$T_{ex}$(N$_2$H$^+$) (K)")
-    ax.set_xlim(xrange)
-    ax.set_ylim(xrange)
-    ax.plot(xrange, xrange, color='k', zorder=10)
-    ax.set_xticks([0, 5, 10, 15])
-    ax.set_yticks([0, 5, 10, 15])
-    ax.text(0.72, 0.26, r'Barnard 5', horizontalalignment='center',
-            transform=ax.transAxes)
-    ax.text(0.72, 0.20, r'Ions vs Neutrals', horizontalalignment='center',
-            transform=ax.transAxes)
-    ax.text(0.72, 0.14, r'Excitation Temperature, $T_{ex}$',
-            horizontalalignment='center',
-            transform=ax.transAxes)
-    fig.savefig('figures/B5_compare_Tex_KDE.pdf', bbox_inches='tight')
-    #
-    fig2, ax2 = plt.subplots(figsize=(4, 4))
-    levels = levels_norm * KDE_tex.max()
-    cfset = ax2.contourf(xx, yy, KDE_NH3, colors=color_levels, zorder=3,
-                         levels=levels_norm_l * KDE_NH3.max(), alpha=0.6)
-    cfset2 = ax2.contourf(xx, yy, KDE_N2Hp, colors=color_levels2, zorder=2,
-                          levels=levels_norm_l * KDE_N2Hp.max(), alpha=1)
-    ax2.set_xlabel(r"$T_{k}$(NH$_3$) (K)")
-    ax2.set_ylabel(r"$T_{ex}$ (K)")
-    ax2.set_xlim(xrange)
-    ax2.set_ylim(xrange)
-    ax2.plot(xrange, xrange, color='k', zorder=10)
-    ax2.set_xticks([0, 5, 10, 15])
-    ax2.set_yticks([0, 5, 10, 15])
-    ax2.text(0.72, 0.26, r'Barnard 5', horizontalalignment='center',
-            transform=ax.transAxes)
-    ax2.text(0.72, 0.20, r'Ions vs Neutrals', horizontalalignment='center',
-            transform=ax.transAxes)
-    ax2.text(0.72, 0.14, r'Excitation Temperature, $T_{ex}$',
-            horizontalalignment='center',
-            transform=ax.transAxes)
-    fig2.savefig('figures/B5_compare_Tex_Tk_KDE.pdf', bbox_inches='tight')
-
-if do_compare_TdV:
-    plt.ion()
-    plt.close()
-    TdV_NH3 = fits.getdata(file_NH3_11_match_TdV)
-    TdV_N2Hp = fits.getdata(file_N2Hp_base_erode_TdV)
-    gd = np.isfinite(TdV_N2Hp * TdV_NH3)
-    ratio_TdV = 3./5.
-    xrange = np.array([0.0, 12])
-    #
-    # try the KDE
-    xx, yy, KDE_TdV = my_KDE(TdV_NH3[gd], TdV_N2Hp[gd],
-                             xmin=xrange[0], xmax=xrange[1],
-                             ymin=xrange[0]*ratio_TdV, ymax=xrange[1]*ratio_TdV)
-    #
-    fig, ax = plt.subplots(figsize=(4, 4))
-    levels = levels_norm * KDE_TdV.max()
-    cfset = ax.contourf(xx, yy, KDE_TdV, colors=color_levels, zorder=2,
-                        levels=levels_norm_l * KDE_TdV.max())
-    ax.set_xlabel(r"$\int Tdv$(NH$_3$) (K km s$^{-1}$)")
-    ax.set_ylabel(r"$\int Tdv$(N$_2$H$^+$) (K km s$^{-1}$)")
-    ax.set_xlim(xrange)
-    ax.set_ylim(xrange*ratio_TdV)
-    ax.plot(xrange, xrange*ratio_TdV, color='k', zorder=10)
-    ax.set_xticks([0, 5, 10])
-    ax.set_yticks([0, 3, 6])
-    ax.text(0.72, 0.26, r'Barnard 5', horizontalalignment='center',
-            transform=ax.transAxes)
-    ax.text(0.72, 0.20, r'Ions vs Neutrals', horizontalalignment='center',
-            transform=ax.transAxes)
-    ax.text(0.72, 0.14, r'Integrated Intensity, $\int T dv$',
-            horizontalalignment='center',
-            transform=ax.transAxes)
-    fig.savefig('figures/B5_compare_TdV_KDE.pdf', bbox_inches='tight')
