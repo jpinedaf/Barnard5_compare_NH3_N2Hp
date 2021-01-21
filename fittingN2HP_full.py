@@ -2,8 +2,6 @@
 
 import pyspeckit
 import astropy.io.fits as fits
-import warnings
-import numpy as np
 import astropy.units as u
 import skimage.morphology as immorph
 import matplotlib.pyplot as plt
