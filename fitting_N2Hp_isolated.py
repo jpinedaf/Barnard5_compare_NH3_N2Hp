@@ -2,7 +2,6 @@
 
 import astropy.units as u
 import astropy.io.fits as fits
-import matplotlib.pyplot as plt
 from config import file_N2Hp_base_erode, file_N2Hp_base_erode_rms, mergedFile_N2Hp_sigma
 from spectral_cube import SpectralCube
 
@@ -19,7 +18,6 @@ file_N2Hp_iso_fit = 'fit_files/B5_N2Hp_fit_iso_full.fits'
 file_N2Hp_iso_fit_sigma_v = 'fit_files/B5_N2Hp_fit_full_iso_sigma_v.fits'\
 
 if do_iso_fit:
-    # file_N2Hp_base_erode = 'data/B5_N2H+_1-0_ARGUS_Tmb_8arcsec_full_rebase1_erode.fits'
     cube = SpectralCube.read(file_N2Hp_base_erode)
 
     freq_iso = 93176.2604*u.MHz
@@ -90,7 +88,6 @@ ax.text(0.15, 0.08, r'SNR(iso) > {0:.1f}'.format(SNR_iso_min))
 ax.xaxis.set_ticks(np.arange(5e-2, 26e-2, 5e-2))
 ax.yaxis.set_ticks(np.arange(5e-2, 26e-2, 5e-2))
 
-#cbaxes = fig.add_axes([0.1, 0.8, 0.8, 0.03])
 plt.colorbar(im, orientation='horizontal', label='Line brightness (K)', shrink=0.8, alpha=1)
 fig.tight_layout()
 fig.savefig('figures/compare_sigma_v_N2Hp_iso_full.pdf', dpi=120)
